@@ -126,17 +126,8 @@ class ProfileViewController: UIViewController {
     //MARK: - Method for when add post button is pressed
     @objc func addPostPressed(){
         
-        let imagePickerOptionsAlert = UIAlertController(title: "Create a new post", message: "Choose a picture from library or camera.", preferredStyle: .actionSheet)
+        let imagePickerOptionsAlert = UIAlertController(title: "Create a new post", message: "Choose a picture from library.", preferredStyle: .actionSheet)
         
-        let cameraAction = UIAlertAction(title: "Camera", style: .default) { UIAlertAction in
-            
-            let cameraImagePicker = self.imagePicker(sourceType: .camera)
-            cameraImagePicker.delegate = self
-            self.present(cameraImagePicker, animated: true){
-                
-            }
-            
-        }
         
         let libraryAction = UIAlertAction(title: "Library", style: .default) { UIAlertAction in
             
@@ -148,7 +139,6 @@ class ProfileViewController: UIViewController {
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        imagePickerOptionsAlert.addAction(cameraAction)
         imagePickerOptionsAlert.addAction(libraryAction)
         imagePickerOptionsAlert.addAction(cancelAction)
         
