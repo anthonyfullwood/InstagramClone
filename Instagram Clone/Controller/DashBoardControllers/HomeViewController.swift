@@ -19,7 +19,7 @@ class HomeViewController: UIViewController {
     private var postImage: UIImage?
     private var postImageUrl: URL?
     private var postUserID: String?
-    private var firstPostsLoad: Bool?
+    
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -30,10 +30,6 @@ class HomeViewController: UIViewController {
         
         refresh.addTarget(self, action: #selector(reloadPosts), for: .valueChanged)
         tableView.addSubview(refresh)
-        
-        firstPostsLoad = false
-        
-        
         
         
     }
@@ -95,7 +91,6 @@ class HomeViewController: UIViewController {
     //MARK: - Methods for loading posts and likes from firebase
     func loadPosts(){
         
-        self.firstPostsLoad = true
         
         db.collection(k.FStore.postsCollection)
             .addSnapshotListener { querySnapshot, error in
@@ -111,24 +106,40 @@ class HomeViewController: UIViewController {
                     
                     if let snapshotDocuments = querySnapshot?.documents{
                         
+                        var docCount = 0
+                        var firstLoad = false
+                        firstLoad = true
                         
                         for doc in snapshotDocuments{
+                            
+                            
                             
                             let docId = doc.documentID
                             
                             self.db.collection(k.FStore.postsCollection).document(doc.documentID).collection(k.FStore.postsCollection).order(by: k.FStore.dateField,descending: true).addSnapshotListener { postsQuerySnapshot, error in
                                 
-                                if let firstPostsLoad = self.firstPostsLoad {
-                                    if !firstPostsLoad {
-                                        self.posts = []
-                                    }
-                                }
-                                
+                        
                                 if let e = error{
                                     
                                     self.alert.showMessage(with: e.localizedDescription)
-                                
+                                   
+                              /*Checks if it is the first time posts are being loaded
+                                so that it doesn't clear the posts array during each iteration*/
+                                    
+                                }else if !firstLoad {
+                                    
+                                    self.reloadPosts()
+                                        
                                 }else{
+                                    
+                                    docCount += 1
+                                    
+                                    /*Set firstLoad to false when all posts are loaded for the first time so that when a user likes a post the posts array can
+                                        be cleared and reloaded and UI is updated */
+                                    if docCount == snapshotDocuments.count{
+                                        firstLoad = false
+                                    }
+                                  
                                     
                                     if let postsSnapshotDocuments = postsQuerySnapshot?.documents {
                                         
@@ -165,6 +176,8 @@ class HomeViewController: UIViewController {
                                 }
                             
                             }
+                            
+                            
                             
                         }
                         
